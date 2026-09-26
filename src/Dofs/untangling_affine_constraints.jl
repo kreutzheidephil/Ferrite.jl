@@ -1,8 +1,8 @@
 """
     _untangle_affine_constraints!(ch::ConstraintHandler)
 
-Untangle the affine constraints in `ch`. This is best illustrated using an example. The following system has
-tangled constraints as `u2` appears as a master and a slave dof.
+Untangle the affine constraints in `ch`. This is best illustrated using an example. The following system is
+tangled as `u2` appears as a master and a slave dof.
 
     u1 = u2 + u5
     u2 = u3 + 4 * u10 + 4.0
@@ -31,11 +31,6 @@ which are then used to update the `ConstraintHandler` accordingly. A couple of t
 
     * The case that a Dirichlet dof is also a master dof i.e., `u9 = f9(t)` in the above system, does not occur as Ferrite overwrites master
     dofs in `add!` to ensure no two constraints share a master dof.
-
-!!! warning
-    As the system `A * a_c = C * a_f + g` only contains the affine
-    constraints that are tangled. Therefore, this function is not designed to be called when the
-    constraints are not tangled.
 
 """
 function _untangle_affine_constraints!(ch::ConstraintHandler)
@@ -78,7 +73,7 @@ function _untangle_affine_constraints!(ch::ConstraintHandler)
 end
 
 """
-    _create_lhs_affine_constraint_matrix(ch::ConstraintHandler{DH, T}) where {DH, T}
+    _create_lhs_affine_constraint_matrix(ch::ConstraintHandler{DH, Tv, Ti}) where {DH, Tv, Ti}
 
 Create and returns the left-hand side constraint matrix `A` from the system `A * a_c = C * a_f + g`. As `A` only contains the
 tangled affine constraints its structure is built from the ground up. This means there is a mapping required to associate
