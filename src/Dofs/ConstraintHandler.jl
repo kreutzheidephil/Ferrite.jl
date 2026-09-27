@@ -148,12 +148,41 @@ struct AffineConstraint{Tv, Ti}
     b::Tv # inhomogeneity
 end
 
+struct AffineConstraints{Tv, Ti}
+    constrained_dofs::Vector{Ti}
+    entries::Vector{DofCoefficients{Tv, Ti}}
+    f::Function
+end
+
 """
     ConstraintHandler([Tv = Float64, [Ti = Int]], dh::AbstractDofHandler)
 
 A collection of constraints associated with the dof handler `dh`.
 `Tv` is the numeric type for stored values and `Ti` the numeric type for stored indices.
 """
+mutable struct ConstraintHandlerNEW{DH <: AbstractDofHandler, Tv, Ti}
+    const dbcs::Vector{Dirichlet}
+    const projbcs::Vector{ProjectedDirichlet}
+    const affine_constraints::Vector{AffineConstraints}
+    const prescribed_dofs::Vector{Ti}
+    const free_dofs::Vector{Ti}
+    const untangle_map::Union{Nothing, SparseArrays.SparseMatrixCSC{Tv, Ti}}
+    const inhomogeneities::Vector{Tv}
+    # Store the original constant inhomogeneities for affine constraints used to compute
+    # "effective" inhomogeneities in `update!` and then stored in .inhomogeneities.
+    
+    #= REMOVE and put in ch.affine_constraints -> =# const affine_inhomogeneities::Vector{Union{Nothing, Tv}}
+    
+    # `nothing` for pure DBC constraint, otherwise affine constraint
+    #= REMOVE and put in ch.affine_constraints =#  const dofcoefficients::Vector{Union{Nothing, DofCoefficients{Tv, Ti}}}
+    # global dof -> index into dofs and inhomogeneities and dofcoefficients
+    #= needs to map =# const dofmapping::Dict{Ti, Ti}
+    const isconstrained::BitVector # Fast check if dof is constrained or not
+    const bcvalues::Vector{BCValues{Tv, Ti}}
+    const dh::DH
+    closed::Bool
+end
+
 mutable struct ConstraintHandler{DH <: AbstractDofHandler, Tv, Ti}
     const dbcs::Vector{Dirichlet}
     const projbcs::Vector{ProjectedDirichlet}
